@@ -1,1 +1,4 @@
+pytz
+python-dateutil
 prometheus_client
+docker
