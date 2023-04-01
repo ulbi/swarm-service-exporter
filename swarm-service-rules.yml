@@ -1,0 +1,41 @@
+groups:
+
+- name: SwarmServiceExporter
+
+  rules:
+
+    - alert: SwarmServiceNotEnoughRunningTasks
+      expr: 'swarm_service_target_scale - swarm_service_current_scale > 0'
+      for: 5m
+      labels:
+        severity: critical
+      annotations:
+        summary:  Insufficent running tasks for swarm service (service {{ $labels.container_label_com_docker_swarm_service_name }})
+        description: "This service should have more tasks, then it has.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+    - alert: SwarmServiceTooManyRunningTasks
+      expr: 'swarm_service_target_scale - swarm_service_current_scale < 0'
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary:  Too many running tasks for swarm service (service {{ $labels.container_label_com_docker_swarm_service_name }})
+        description: "This service should have less tasks, then it has.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+    - alert: SwarmServiceServiceTasksChangeOnAHighRate
+      expr: 'rate(swarm_service_start_count_total[10m])>0'
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary:  The tasks in this service restart (service {{ $labels.container_label_com_docker_swarm_service_name }})
+        description: "The tasks in this service restart too often. \n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
+    - alert: SwarmServiceServiceTasksChangeOnAHighRate
+      expr: 'rate(swarm_service_start_count_total[10m])>1'
+      for: 10m
+      labels:
+        severity: critical
+      annotations:
+        summary:  The tasks in this service restart (service {{ $labels.container_label_com_docker_swarm_service_name }})
+        description: "The tasks in this service restart too often. \n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
